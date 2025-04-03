@@ -14,20 +14,27 @@ typedef struct {
 
 // Función para verificar si un número ya existe en la lista correspondiente
 int number_exists_in_list(int thread_id, int number, int is_even) {
+    int exists = 0;
     if (is_even) {
+        pthread_mutex_lock(&even_mutex);
         for (int i = 0; i < even_count; i++) {
             if (even_list[i].thread == thread_id && even_list[i].value == number) {
-                return 1; // El número ya existe en la lista de pares para este hilo
+                exists = 1; // El número ya existe en la lista de pares para este hilo
+                break;
             }
         }
+        pthread_mutex_unlock(&even_mutex);
     } else {
+        pthread_mutex_lock(&odd_mutex);
         for (int i = 0; i < odd_count; i++) {
             if (odd_list[i].thread == thread_id && odd_list[i].value == number) {
-                return 1; // El número ya existe en la lista de impares para este hilo
+                exists = 1; // El número ya existe en la lista de impares para este hilo
+                break;
             }
         }
+        pthread_mutex_unlock(&odd_mutex);
     }
-    return 0; // El número no existe
+    return exists; // El número no existe
 }
 
 // Función que ejecutará cada hilo

@@ -1,10 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 #include "main.h"
 
 // Eliminar MAX_ENTRIES
 // #define MAX_ENTRIES 100 // Comentado o eliminado
+
+// Definición de los mutex
+pthread_mutex_t even_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t odd_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // Cambiar a punteros y añadir tamaño máximo
 NumberEntry *even_list = NULL;
@@ -31,11 +36,20 @@ int initialize_lists(int size) {
     }
     even_count = 0;
     odd_count = 0;
+    
+    // Inicializar los mutex
+    pthread_mutex_init(&even_mutex, NULL);
+    pthread_mutex_init(&odd_mutex, NULL);
+    
     return 1; // Indicar éxito
 }
 
 // Nueva función para liberar memoria
 void free_lists() {
+    // Destruir los mutex
+    pthread_mutex_destroy(&even_mutex);
+    pthread_mutex_destroy(&odd_mutex);
+    
     free(even_list);
     free(odd_list);
     even_list = NULL;
@@ -45,8 +59,8 @@ void free_lists() {
     odd_count = 0;
 }
 
-
 void add_to_even_list(NumberEntry entry) {
+    pthread_mutex_lock(&even_mutex);
     // Usar max_entries_per_list en lugar de MAX_ENTRIES
     if (even_list != NULL && even_count < max_entries_per_list) {
         even_list[even_count++] = entry;
@@ -55,9 +69,11 @@ void add_to_even_list(NumberEntry entry) {
     } else {
          fprintf(stderr, "Error: La lista de pares está llena.\n");
     }
+    pthread_mutex_unlock(&even_mutex);
 }
 
 void add_to_odd_list(NumberEntry entry) {
+    pthread_mutex_lock(&odd_mutex);
     // Usar max_entries_per_list en lugar de MAX_ENTRIES
     if (odd_list != NULL && odd_count < max_entries_per_list) {
         odd_list[odd_count++] = entry;
@@ -66,12 +82,15 @@ void add_to_odd_list(NumberEntry entry) {
     } else {
          fprintf(stderr, "Error: La lista de impares está llena.\n");
     }
+    pthread_mutex_unlock(&odd_mutex);
 }
 
 void print_even_list() {
+    pthread_mutex_lock(&even_mutex);
     // Añadir comprobación por si la lista no está inicializada
     if (even_list == NULL) {
         printf("La lista de pares no está inicializada.\n");
+        pthread_mutex_unlock(&even_mutex);
         return;
     }
     printf("Lista de numeros pares (%d/%d):\n", even_count, max_entries_per_list);
@@ -79,12 +98,15 @@ void print_even_list() {
         printf("Index: %d, Thread: %d, Time: %s, Value: %d\n",
                even_list[i].index, even_list[i].thread, even_list[i].time, even_list[i].value);
     }
+    pthread_mutex_unlock(&even_mutex);
 }
 
 void print_odd_list() {
+    pthread_mutex_lock(&odd_mutex);
     // Añadir comprobación por si la lista no está inicializada
     if (odd_list == NULL) {
         printf("La lista de impares no está inicializada.\n");
+        pthread_mutex_unlock(&odd_mutex);
         return;
     }
     printf("Lista de numeros impares (%d/%d):\n", odd_count, max_entries_per_list);
@@ -92,4 +114,5 @@ void print_odd_list() {
         printf("Index: %d, Thread: %d, Time: %s, Value: %d\n",
                odd_list[i].index, odd_list[i].thread, odd_list[i].time, odd_list[i].value);
     }
+    pthread_mutex_unlock(&odd_mutex);
 }

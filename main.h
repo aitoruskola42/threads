@@ -1,5 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
+#include <pthread.h>
+
 typedef struct {
     int index;
     int thread;
@@ -35,5 +37,9 @@ extern NumberEntry *even_list; // Declaración externa
 extern NumberEntry *odd_list;  // Declaración externa
 extern int even_count;          // Declaración externa
 extern int odd_count;           // Declaración externa
+
+// Mutex para proteger las listas
+extern pthread_mutex_t even_mutex;
+extern pthread_mutex_t odd_mutex;
 
 #endif
