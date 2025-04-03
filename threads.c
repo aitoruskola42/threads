@@ -13,6 +13,19 @@ typedef struct {
 } thread_data_t;
 
 
+/**
+ * Checks if a number already exists in the specified list
+ * 
+ * @param thread_id ID of the thread checking
+ * @param number Number to check
+ * @param is_even Flag indicating which list to check (1 for even, 0 for odd)
+ * @return 1 if number exists, 0 otherwise
+ * 
+ * Thread-safe operations:
+ * - Locks appropriate mutex
+ * - Searches for number in list
+ * - Unlocks mutex
+ */
 int number_exists_in_list(int thread_id, int number, int is_even) {
     int exists = 0;
     if (is_even) {
@@ -38,6 +51,18 @@ int number_exists_in_list(int thread_id, int number, int is_even) {
 }
 
 
+/**
+ * Worker thread function that generates and processes random numbers
+ * 
+ * @param arg Pointer to thread_data_t structure
+ * 
+ * Operations:
+ * - Generates unique random numbers
+ * - Adds timestamp to each entry
+ * - Classifies numbers as even/odd
+ * - Adds numbers to appropriate lists
+ * - Handles thread-safe operations
+ */
 void *thread_worker(void *arg) {
     thread_data_t *data = (thread_data_t *)arg; 
     int thread_id = data->thread_id;
@@ -77,6 +102,19 @@ void *thread_worker(void *arg) {
     pthread_exit(NULL); 
 }
 
+/**
+ * Creates and manages multiple worker threads
+ * 
+ * @param thread_num Number of threads to create
+ * @param numbers_per_thread Numbers each thread should process
+ * @return 1 if successful, 0 if error
+ * 
+ * Operations:
+ * - Creates specified number of threads
+ * - Allocates thread data structures
+ * - Manages thread creation/joining
+ * - Handles thread creation errors
+ */
 int create_and_manage_threads(int thread_num, int numbers_per_thread) {
     pthread_t threads[thread_num];
     int threads_created = 0;

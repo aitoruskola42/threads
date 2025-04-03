@@ -3,6 +3,23 @@
 #include <string.h>
 #include "main.h"
 
+/**
+ * Validates the key-value format in the configuration file
+ * 
+ * @param content File content to validate
+ * @param numbers_per_thread Pointer to store numbers per thread value
+ * @param thread_num Pointer to store number of threads value
+ * @return 1 if valid format, 0 otherwise
+ * 
+ * Validates:
+ * - Presence of required keys (numbers_per_thread, thread_num)
+ * - Valid numeric values for each key
+ * - Proper key=value format
+ * 
+ * Extracts and stores:
+ * - Number of items per thread
+ * - Total number of threads
+ */
 int validate_key_value_format(const char *content, int *numbers_per_thread, int *thread_num) {
     const char *required_keys[] = {"numbers_per_thread", "thread_num"};
     int keys_found[2] = {0, 0};

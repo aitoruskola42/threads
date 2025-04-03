@@ -1,0 +1,68 @@
+DIAGRAMA DE FLUJO DEL PROGRAMA
+===========================
+
+[INICIO]
+    |
+    v
+[Procesamiento de Argumentos] (arg_check.c)
+    | - Verifica número de argumentos
+    | - Procesa -h/--help para ayuda
+    | - Verifica -f/--file y extensión .txt
+    |
+    v
+[Lectura del Fichero] (file_read.c)
+    | - Abre y lee el fichero
+    | - Verifica que no esté vacío
+    | - Añade \n al final si es necesario
+    |
+    v
+[Validación del Contenido] (key_check.c)
+    | - Busca las claves requeridas:
+    |   * numbers_per_thread
+    |   * thread_num
+    |
+    v
+[Inicialización de Listas] (list_management.c)
+    | - Calcula tamaño total (numbers_per_thread * thread_num)
+    | - Inicializa lista de pares
+    | - Inicializa lista de impares
+    | - Inicializa mutex para sincronización
+    |
+    v
+[Creación y Gestión de Hilos] (threads.c)
+    | - Crea thread_num hilos
+    | - Cada hilo:
+        | - Genera numbers_per_thread números aleatorios
+        | - Verifica que no existan duplicados
+        | - Añade timestamp
+        | - Clasifica en par/impar
+        | - Añade a la lista correspondiente
+    |
+    v
+[Ordenamiento y Presentación] (list_management.c)
+    | - Ordena lista de pares
+    | - Ordena lista de impares
+    | - Imprime resultados ordenados
+    |
+    v
+[Limpieza] (main.c)
+    | - Libera memoria de las listas
+    | - Destruye mutex
+    |
+    v
+[FIN]
+
+ESTRUCTURAS DE DATOS
+===================
+NumberEntry {
+    index:  Posición en la secuencia
+    thread: ID del hilo generador
+    time:   Timestamp de generación
+    value:  Número generado
+}
+
+SINCRONIZACIÓN
+=============
+- Mutex para lista de pares
+- Mutex para lista de impares
+- Verificación de duplicados por hilo

@@ -1,0 +1,121 @@
+FLUJO DETALLADO DEL PROGRAMA
+==========================
+
+[INICIO] main.c -> main()
+    |
+    v
+[Procesamiento de Argumentos]
+    Archivo: arg_check.c
+    Función: handle_arguments(int argc, char *argv[], char **filename)
+    |---> Verifica argc (2 o 3 argumentos)
+    |---> Si argc == 2:
+          |--> Verifica -h/--help
+          |--> Muestra ayuda y sale si es help
+    |---> Si argc == 3:
+          |--> Verifica -f/--file
+          |--> Verifica extensión .txt
+          |--> Almacena nombre del archivo
+    |
+    v
+[Lectura del Fichero]
+    Archivo: file_read.c
+    Función: read_file(const char *filename)
+    |---> Abre el archivo (fopen)
+    |---> Obtiene tamaño (fstat)
+    |---> Asigna memoria para contenido
+    |---> Lee contenido (fread)
+    |---> Asegura terminación con \n
+    |
+    v
+[Validación del Contenido]
+    Archivo: key_check.c
+    Función: validate_key_value_format(const char *content, int *numbers_per_thread, int *thread_num)
+    |---> Busca "numbers_per_thread"
+    |---> Busca "thread_num"
+    |---> Extrae valores numéricos
+    |---> Verifica formato correcto
+    |
+    v
+[Inicialización de Listas]
+    Archivo: list_management.c
+    Función: initialize_lists(int size)
+    |---> Calcula tamaño total
+    |---> Inicializa mutex (pthread_mutex_init)
+    |---> Asigna memoria para listas
+          |--> even_list (malloc)
+          |--> odd_list (malloc)
+    |
+    v
+[Creación y Gestión de Hilos]
+    Archivo: threads.c
+    Funciones:
+    1. create_and_manage_threads(int thread_num, int numbers_per_thread)
+       |---> Crea array de pthread_t
+       |---> Inicializa datos para cada hilo
+       |---> Crea hilos con pthread_create
+       |---> Espera finalización con pthread_join
+
+    2. thread_worker(void *arg)
+       |---> Por cada número a generar:
+            |--> Genera número aleatorio
+            |--> Verifica si existe (number_exists_in_list)
+            |--> Añade timestamp
+            |--> Clasifica y añade a lista:
+                 |--> add_to_even_list() o add_to_odd_list()
+    |
+    v
+[Ordenamiento]
+    Archivo: list_management.c
+    Funciones:
+    1. sort_even_list()
+       |---> Bloquea mutex
+       |---> Ordena con qsort
+       |---> Desbloquea mutex
+
+    2. sort_odd_list()
+       |---> Bloquea mutex
+       |---> Ordena con qsort
+       |---> Desbloquea mutex
+    |
+    v
+[Presentación]
+    Archivo: list_management.c
+    Función: print_sorted_lists()
+    |---> Imprime lista par ordenada
+    |---> Imprime lista impar ordenada
+    |
+    v
+[Limpieza]
+    Archivo: list_management.c
+    Función: free_lists()
+    |---> Destruye mutex
+    |---> Libera memoria de listas
+    |
+    v
+[FIN] main.c -> return 0
+
+PROTECCIÓN DE DATOS
+==================
+Mutex utilizados:
+- even_mutex: Protege even_list
+- odd_mutex: Protege odd_list
+
+Operaciones protegidas:
+- Añadir elementos
+- Verificar duplicados
+- Ordenar listas
+- Imprimir listas
+
+ESTRUCTURA DE ARCHIVOS
+=====================
+main.h:
+- Define estructura NumberEntry
+- Define constantes de error
+- Declara funciones públicas
+- Declara variables externas
+
+prueba.txt:
+- Formato: clave = valor
+- Claves requeridas:
+  * numbers_per_thread
+  * thread_num

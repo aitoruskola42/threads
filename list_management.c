@@ -14,6 +14,17 @@ int even_count = 0;
 int odd_count = 0;
 
 
+/**
+ * Initializes the even and odd lists with mutex protection
+ * 
+ * @param size Maximum size for each list
+ * @return 1 if initialization successful, 0 if failed
+ * 
+ * Operations:
+ * - Allocates memory for even and odd lists
+ * - Initializes mutex locks
+ * - Sets initial counters to 0
+ */
 int initialize_lists(int size) {
     max_entries_per_list = size;
     even_list = (NumberEntry *)malloc(max_entries_per_list * sizeof(NumberEntry));
@@ -52,6 +63,18 @@ void free_lists() {
     odd_count = 0;
 }
 
+/**
+ * Safely adds a number entry to the even list with mutex protection
+ * 
+ * @param entry NumberEntry structure to add
+ * 
+ * Thread-safe operations:
+ * - Locks even_mutex before modification
+ * - Validates list capacity
+ * - Adds entry to list
+ * - Updates counter
+ * - Unlocks mutex
+ */
 void add_to_even_list(NumberEntry entry) {
     if (pthread_mutex_lock(&even_mutex) != 0) {
         fprintf(stderr, "Error: No se pudo bloquear el mutex de la lista par\n");
@@ -70,6 +93,18 @@ void add_to_even_list(NumberEntry entry) {
     }
 }
 
+/**
+ * Safely adds a number entry to the odd list with mutex protection
+ * 
+ * @param entry NumberEntry structure to add
+ * 
+ * Thread-safe operations:
+ * - Locks odd_mutex before modification
+ * - Validates list capacity
+ * - Adds entry to list
+ * - Updates counter
+ * - Unlocks mutex
+ */
 void add_to_odd_list(NumberEntry entry) {
     if (pthread_mutex_lock(&odd_mutex) != 0) {
         fprintf(stderr, "Error: No se pudo bloquear el mutex de la lista impar\n");
@@ -134,6 +169,15 @@ static int compare_entries(const void *a, const void *b) {
     return ((NumberEntry *)a)->value - ((NumberEntry *)b)->value;
 }
 
+/**
+ * Sorts the even list in ascending order with mutex protection
+ * 
+ * Thread-safe operations:
+ * - Locks even_mutex
+ * - Validates list existence and content
+ * - Performs quick sort
+ * - Unlocks mutex
+ */
 void sort_even_list() {
     if (pthread_mutex_lock(&even_mutex) != 0) {
         fprintf(stderr, "Error: No se pudo bloquear el mutex de la lista par\n");
@@ -153,6 +197,15 @@ void sort_even_list() {
     }
 }
 
+/**
+ * Sorts the odd list in ascending order with mutex protection
+ * 
+ * Thread-safe operations:
+ * - Locks odd_mutex
+ * - Validates list existence and content
+ * - Performs quick sort
+ * - Unlocks mutex
+ */
 void sort_odd_list() {
     if (pthread_mutex_lock(&odd_mutex) != 0) {
         fprintf(stderr, "Error: No se pudo bloquear el mutex de la lista impar\n");
@@ -172,6 +225,15 @@ void sort_odd_list() {
     }
 }
 
+/**
+ * Prints both even and odd lists in sorted order
+ * 
+ * Operations:
+ * - Sorts both lists
+ * - Prints even numbers with mutex protection
+ * - Prints odd numbers with mutex protection
+ * - Handles empty lists
+ */
 void print_sorted_lists() {
     sort_even_list();
     printf("\nLista de números pares ordenada:\n");

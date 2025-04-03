@@ -5,10 +5,27 @@
 #include <time.h>
 #include "main.h"
 
-
-
-
-
+/**
+ * Main program entry point
+ * 
+ * @param argc Number of command line arguments
+ * @param argv Array of command line argument strings
+ * @return 0 on success, non-zero on error
+ * 
+ * Program flow:
+ * 1. Process command line arguments
+ * 2. Read and validate input file
+ * 3. Initialize data structures
+ * 4. Create and manage worker threads
+ * 5. Sort and display results
+ * 6. Clean up resources
+ * 
+ * Error handling:
+ * - Invalid arguments
+ * - File read errors
+ * - Memory allocation failures
+ * - Thread creation/management errors
+ */
 int main(int argc, char *argv[]) {
     char *filename = NULL;
     handle_arguments(argc, argv, &filename);

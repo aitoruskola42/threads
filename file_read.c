@@ -3,6 +3,25 @@
 #include <sys/stat.h>
 #include "main.h"
 
+/**
+ * Reads and processes a text file
+ * 
+ * @param filename Path to the file to be read
+ * @return Pointer to the file contents or NULL if error
+ * 
+ * Operations:
+ * - Opens and validates file existence
+ * - Gets file size using fstat
+ * - Allocates memory for content
+ * - Reads entire file content
+ * - Ensures proper line ending with \n
+ * - Handles empty files
+ * 
+ * Returns NULL if:
+ * - File cannot be opened
+ * - File is empty
+ * - Memory allocation fails
+ */
 char* read_file(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (!file) {
