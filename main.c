@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>  
+#include <time.h>
 
 #include "main.h"
 // Asegúrate de incluir el archivo de gestión de listas
@@ -35,16 +36,30 @@ int main(int argc, char *argv[]) {
         if (validate_key_value_format(content, &numbers_per_thread, &thread_num)) {
             print_content(content, numbers_per_thread, thread_num);
 
-            // Llamar a initialize_lists DESPUÉS de obtener numbers_per_thread
-            if (initialize_lists(numbers_per_thread)) {
+            // Calcular el tamaño total para las listas
+            int total_size = numbers_per_thread * thread_num;
+            printf("Inicializando listas con tamaño total: %d (%d hilos * %d números/hilo)\n", 
+                   total_size, thread_num, numbers_per_thread);
+
+            // Llamar a initialize_lists con el tamaño total
+            if (initialize_lists(total_size)) {
                 lists_initialized = 1; // Marcar como inicializadas
-                // Mover el bucle y las impresiones aquí dentro
-                // Ejemplo de uso
-                for (int i = 0; i < numbers_per_thread; i++) {
+                
+                // --- INICIO: Código de ejemplo a eliminar o modificar --- 
+                // Este bucle es solo un ejemplo y deberá ser reemplazado 
+                // por la lógica real de creación y manejo de hilos.
+                // Cada hilo debería añadir sus propios números.
+                printf("\n--- EJEMPLO: Añadiendo números (esto debe hacerse en los hilos) ---\n");
+                for (int i = 0; i < numbers_per_thread; i++) { // Este bucle solo añade numbers_per_thread como ejemplo
                     NumberEntry entry;
                     entry.index = i;
                     entry.thread = 1; // Ejemplo de thread
-                    snprintf(entry.time, sizeof(entry.time), "2023-04-03 12:00:%02d", i); // Formato de tiempo
+                    // Obtener la fecha y hora actuales
+                    time_t now = time(NULL);
+                    struct tm *t = localtime(&now);
+                    snprintf(entry.time, sizeof(entry.time), "%04d-%02d-%02d %02d:%02d:%02d", 
+                             t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, 
+                             t->tm_hour, t->tm_min, t->tm_sec);
 
                     if (i % 2 == 0) {
                         entry.value = i;
@@ -54,6 +69,8 @@ int main(int argc, char *argv[]) {
                         add_to_odd_list(entry);
                     }
                 }
+                printf("--- FIN EJEMPLO ---\n\n");
+                // --- FIN: Código de ejemplo a eliminar o modificar --- 
 
                 print_even_list();
                 print_odd_list();

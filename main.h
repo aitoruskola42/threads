@@ -3,8 +3,8 @@
 typedef struct {
     int index;
     int thread;
-    char time[20]; // Formato de fecha con segundos
-    int value;     // Valor par o impar
+    char time[40];
+    int value;    
 } NumberEntry;
 
 #define ARG_ERROR "Argumentos incorrectos, ponga -h para ver argumentos disponibles"
@@ -28,5 +28,7 @@ void print_even_list();
 void print_odd_list();
 void free_lists();
 
+void *thread_worker(void *arg);
+int create_and_manage_threads(int thread_num, int numbers_per_thread);
 
 #endif
