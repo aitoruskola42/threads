@@ -26,6 +26,7 @@ void print_content(const char *content, int numbers_per_thread, int thread_num) 
 int main(int argc, char *argv[]) {
     char *filename = NULL;
     handle_arguments(argc, argv, &filename);
+    srand(time(NULL)); // Inicializar la semilla para números aleatorios
 
     char *content = read_file(filename);
     int numbers_per_thread = 0;
@@ -45,39 +46,14 @@ int main(int argc, char *argv[]) {
             if (initialize_lists(total_size)) {
                 lists_initialized = 1; // Marcar como inicializadas
                 
-                // --- INICIO: Código de ejemplo a eliminar o modificar --- 
-                // Este bucle es solo un ejemplo y deberá ser reemplazado 
-                // por la lógica real de creación y manejo de hilos.
-                // Cada hilo debería añadir sus propios números.
-                printf("\n--- EJEMPLO: Añadiendo números (esto debe hacerse en los hilos) ---\n");
-                for (int i = 0; i < numbers_per_thread; i++) { // Este bucle solo añade numbers_per_thread como ejemplo
-                    NumberEntry entry;
-                    entry.index = i;
-                    entry.thread = 1; // Ejemplo de thread
-                    // Obtener la fecha y hora actuales
-                    time_t now = time(NULL);
-                    struct tm *t = localtime(&now);
-                    snprintf(entry.time, sizeof(entry.time), "%04d-%02d-%02d %02d:%02d:%02d", 
-                             t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, 
-                             t->tm_hour, t->tm_min, t->tm_sec);
-
-                    if (i % 2 == 0) {
-                        entry.value = i;
-                        add_to_even_list(entry);
-                    } else {
-                        entry.value = i;
-                        add_to_odd_list(entry);
-                    }
-                }
-                printf("--- FIN EJEMPLO ---\n\n");
-                // --- FIN: Código de ejemplo a eliminar o modificar --- 
+                // Llamar a la función para crear y gestionar hilos
+                create_and_manage_threads(thread_num, numbers_per_thread);
 
                 print_even_list();
                 print_odd_list();
 
             } else {
                 fprintf(stderr, "Fallo al inicializar las listas. Saliendo.\n");
-                // No es necesario llamar a free_lists si initialize_lists falló
             }
 
         } else {

@@ -3,7 +3,7 @@
 typedef struct {
     int index;
     int thread;
-    char time[40];
+    char time[50];
     int value;    
 } NumberEntry;
 
@@ -30,5 +30,10 @@ void free_lists();
 
 void *thread_worker(void *arg);
 int create_and_manage_threads(int thread_num, int numbers_per_thread);
+
+extern NumberEntry *even_list; // Declaración externa
+extern NumberEntry *odd_list;  // Declaración externa
+extern int even_count;          // Declaración externa
+extern int odd_count;           // Declaración externa
 
 #endif

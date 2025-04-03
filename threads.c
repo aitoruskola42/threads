@@ -2,62 +2,95 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <time.h>
+#include <sys/time.h>
 #include "main.h"
 
-// Estructura para pasar datos a cada hilo (si es necesario)
-// typedef struct {
-//     int thread_id;
-//     int numbers_to_process;
-//     // Otros datos que el hilo pueda necesitar...
-// } thread_data_t;
+// Estructura para pasar datos a cada hilo
+typedef struct {
+    int thread_id;
+    int numbers_to_process;
+} thread_data_t;
+
+// Función para verificar si un número ya existe en la lista correspondiente
+int number_exists_in_list(int thread_id, int number, int is_even) {
+    if (is_even) {
+        for (int i = 0; i < even_count; i++) {
+            if (even_list[i].thread == thread_id && even_list[i].value == number) {
+                return 1; // El número ya existe en la lista de pares para este hilo
+            }
+        }
+    } else {
+        for (int i = 0; i < odd_count; i++) {
+            if (odd_list[i].thread == thread_id && odd_list[i].value == number) {
+                return 1; // El número ya existe en la lista de impares para este hilo
+            }
+        }
+    }
+    return 0; // El número no existe
+}
 
 // Función que ejecutará cada hilo
 void *thread_worker(void *arg) {
-    // Aquí irá la lógica de cada hilo:
-    // 1. Recibir sus datos (ej: ID de hilo, rango de números a procesar).
-    // 2. Procesar los números asignados.
-    // 3. Determinar si cada número es par o impar.
-    // 4. Crear una estructura NumberEntry con los detalles (index, thread_id, time, value).
-    // 5. Añadir la entrada a la lista correspondiente (even_list o odd_list).
-    //    ¡¡IMPORTANTE!!: Se necesitará un mutex para proteger el acceso a 
-    //    even_list, odd_list, even_count y odd_count cuando se añadan elementos.
-    
-    printf("Hilo ejecutándose (argumento: %p)...\n", arg); // Mensaje temporal
-    
-    // Simulación de añadir un número (¡esto necesita la lógica real y mutex!)
-    /*
-    if (/* número es par */ /*) {
-        NumberEntry entry = { ... }; 
-        // pthread_mutex_lock(&list_mutex); // Bloquear mutex
-        add_to_even_list(entry);
-        // pthread_mutex_unlock(&list_mutex); // Desbloquear mutex
-    } else {
-        NumberEntry entry = { ... };
-        // pthread_mutex_lock(&list_mutex); // Bloquear mutex
-        add_to_odd_list(entry);
-        // pthread_mutex_unlock(&list_mutex); // Desbloquear mutex
-    }
-    */
+    thread_data_t *data = (thread_data_t *)arg; // Convertir el argumento a la estructura
+    int thread_id = data->thread_id;
+    int numbers_to_process = data->numbers_to_process;
 
+    printf("Hilo %d ejecutándose...\n", thread_id);
+
+    // Simulación de procesamiento de números
+    for (int i = 0; i < numbers_to_process; i++) {
+        NumberEntry entry;
+        entry.thread = thread_id;
+
+        // Generar un número aleatorio único
+        int random_number;
+        int is_even;
+        do {
+            random_number = rand() % 100000 + 1; // Generar un número aleatorio entre 1 y 100000
+            is_even = (random_number % 2 == 0); // Determinar si es par
+        } while (number_exists_in_list(thread_id, random_number, is_even)); // Verificar si el número ya existe
+
+        entry.value = random_number; // Asignar el número aleatorio
+        entry.index = i; // Asignar el índice de iteración
+
+        // Obtener la fecha y hora actuales con microsegundos
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        struct tm *t = localtime(&tv.tv_sec);
+        snprintf(entry.time, sizeof(entry.time), "%04d-%02d-%02d %02d:%02d:%02d.%06ld", 
+                 t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, 
+                 t->tm_hour, t->tm_min, t->tm_sec, tv.tv_usec);
+
+        // Añadir a la lista correspondiente
+        if (is_even) {
+            add_to_even_list(entry);
+        } else {
+            add_to_odd_list(entry);
+        }
+    }
+
+    free(data); // Liberar la memoria de los datos del hilo
     pthread_exit(NULL); // Terminar el hilo
 }
 
 // Función para crear y gestionar los hilos
 int create_and_manage_threads(int thread_num, int numbers_per_thread) {
     pthread_t threads[thread_num];
-    // thread_data_t thread_data_array[thread_num]; // Array para los datos de cada hilo si se usa la estructura
 
     printf("Creando %d hilos...\n", thread_num);
 
     for (int i = 0; i < thread_num; i++) {
         printf("  Creando hilo %d\n", i);
-        // Preparar datos para el hilo i (ej: thread_data_array[i] = ...)
-        // Pasar el ID de hilo o la estructura de datos como argumento a thread_worker
-        // if (pthread_create(&threads[i], NULL, thread_worker, /* (void *)&thread_data_array[i] */ (void *)(intptr_t)i) != 0) {
-        if (pthread_create(&threads[i], NULL, thread_worker, (void *)(intptr_t)i) != 0) { // Ejemplo pasando solo el ID
-             perror("Error al crear el hilo");
-             // Manejar el error (quizás terminar los hilos ya creados)
-             return 0; // Indicar fallo
+        
+        // Preparar datos para el hilo
+        thread_data_t *data = malloc(sizeof(thread_data_t));
+        data->thread_id = i;
+        data->numbers_to_process = numbers_per_thread;
+
+        if (pthread_create(&threads[i], NULL, thread_worker, (void *)data) != 0) {
+            perror("Error al crear el hilo");
+            return 0; // Indicar fallo
         }
     }
 
@@ -65,7 +98,6 @@ int create_and_manage_threads(int thread_num, int numbers_per_thread) {
     for (int i = 0; i < thread_num; i++) {
         if (pthread_join(threads[i], NULL) != 0) {
             perror("Error al esperar al hilo");
-            // Manejar el error
         }
         printf("  Hilo %d terminado.\n", i);
     }
