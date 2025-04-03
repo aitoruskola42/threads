@@ -148,3 +148,96 @@ void print_odd_list() {
         fprintf(stderr, "Error: No se pudo desbloquear el mutex de la lista impar\n");
     }
 }
+
+// Función de comparación para qsort
+static int compare_entries(const void *a, const void *b) {
+    return ((NumberEntry *)a)->value - ((NumberEntry *)b)->value;
+}
+
+void sort_even_list() {
+    if (pthread_mutex_lock(&even_mutex) != 0) {
+        fprintf(stderr, "Error: No se pudo bloquear el mutex de la lista par\n");
+        return;
+    }
+
+    if (even_list == NULL || even_count == 0) {
+        fprintf(stderr, "La lista de pares está vacía o no inicializada\n");
+        pthread_mutex_unlock(&even_mutex);
+        return;
+    }
+
+    qsort(even_list, even_count, sizeof(NumberEntry), compare_entries);
+
+    if (pthread_mutex_unlock(&even_mutex) != 0) {
+        fprintf(stderr, "Error: No se pudo desbloquear el mutex de la lista par\n");
+    }
+}
+
+void sort_odd_list() {
+    if (pthread_mutex_lock(&odd_mutex) != 0) {
+        fprintf(stderr, "Error: No se pudo bloquear el mutex de la lista impar\n");
+        return;
+    }
+
+    if (odd_list == NULL || odd_count == 0) {
+        fprintf(stderr, "La lista de impares está vacía o no inicializada\n");
+        pthread_mutex_unlock(&odd_mutex);
+        return;
+    }
+
+    qsort(odd_list, odd_count, sizeof(NumberEntry), compare_entries);
+
+    if (pthread_mutex_unlock(&odd_mutex) != 0) {
+        fprintf(stderr, "Error: No se pudo desbloquear el mutex de la lista impar\n");
+    }
+}
+
+void print_sorted_lists() {
+    printf("\nListas ordenadas por valor:\n");
+    printf("-------------------------\n");
+    
+    // Ordenar y mostrar lista de pares
+    sort_even_list();
+    printf("\nLista de números pares ordenada:\n");
+    if (pthread_mutex_lock(&even_mutex) != 0) {
+        fprintf(stderr, "Error: No se pudo bloquear el mutex de la lista par\n");
+        return;
+    }
+    
+    if (even_list != NULL && even_count > 0) {
+        for (int i = 0; i < even_count; i++) {
+            printf("Value: %d (Index: %d, Thread: %d, Time: %s)\n",
+                   even_list[i].value, even_list[i].index, 
+                   even_list[i].thread, even_list[i].time);
+        }
+    } else {
+        printf("La lista de pares está vacía\n");
+    }
+    
+    if (pthread_mutex_unlock(&even_mutex) != 0) {
+        fprintf(stderr, "Error: No se pudo desbloquear el mutex de la lista par\n");
+        return;
+    }
+
+    // Ordenar y mostrar lista de impares
+    sort_odd_list();
+    printf("\nLista de números impares ordenada:\n");
+    if (pthread_mutex_lock(&odd_mutex) != 0) {
+        fprintf(stderr, "Error: No se pudo bloquear el mutex de la lista impar\n");
+        return;
+    }
+    
+    if (odd_list != NULL && odd_count > 0) {
+        for (int i = 0; i < odd_count; i++) {
+            printf("Value: %d (Index: %d, Thread: %d, Time: %s)\n",
+                   odd_list[i].value, odd_list[i].index, 
+                   odd_list[i].thread, odd_list[i].time);
+        }
+    } else {
+        printf("La lista de impares está vacía\n");
+    }
+    
+    if (pthread_mutex_unlock(&odd_mutex) != 0) {
+        fprintf(stderr, "Error: No se pudo desbloquear el mutex de la lista impar\n");
+    }
+}

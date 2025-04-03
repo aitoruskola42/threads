@@ -51,6 +51,9 @@ int main(int argc, char *argv[]) {
 
                 print_even_list();
                 print_odd_list();
+                
+                // Imprimir las listas ordenadas
+                print_sorted_lists();
 
             } else {
                 fprintf(stderr, "Fallo al inicializar las listas. Saliendo.\n");

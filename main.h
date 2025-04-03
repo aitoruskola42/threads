@@ -30,6 +30,11 @@ void print_even_list();
 void print_odd_list();
 void free_lists();
 
+// Funciones de ordenamiento
+void sort_even_list();
+void sort_odd_list();
+void print_sorted_lists();
+
 void *thread_worker(void *arg);
 int create_and_manage_threads(int thread_num, int numbers_per_thread);
 
