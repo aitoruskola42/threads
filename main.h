@@ -20,7 +20,6 @@ typedef struct {
 void handle_arguments(int argc, char *argv[], char **filename);
 char* read_file(const char *filename);
 int validate_key_value_format(const char *content, int *numbers_per_thread, int *thread_num);
-void print_content(const char *content, int numbers_per_thread, int thread_num);
 
 // Funciones para manejar las listas
 int initialize_lists(int size);

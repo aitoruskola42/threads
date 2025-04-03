@@ -15,12 +15,6 @@ int initialize_lists(int size);
 void free_lists();
 
 
-void print_content(const char *content, int numbers_per_thread, int thread_num) {
-    printf("Contenido del fichero:\n%s\n", content);
-    printf("Las variables obtenidas son:\n");
-    printf("Numero de hilos: %d\n", numbers_per_thread);
-    printf("Numero de threads: %d\n", thread_num);
-}
 
 
 int main(int argc, char *argv[]) {
@@ -35,12 +29,10 @@ int main(int argc, char *argv[]) {
 
     if (content) {
         if (validate_key_value_format(content, &numbers_per_thread, &thread_num)) {
-            print_content(content, numbers_per_thread, thread_num);
+
 
             // Calcular el tamaño total para las listas
             int total_size = numbers_per_thread * thread_num;
-            printf("Inicializando listas con tamaño total: %d (%d hilos * %d números/hilo)\n", 
-                   total_size, thread_num, numbers_per_thread);
 
             // Llamar a initialize_lists con el tamaño total
             if (initialize_lists(total_size)) {
@@ -49,9 +41,6 @@ int main(int argc, char *argv[]) {
                 // Llamar a la función para crear y gestionar hilos
                 create_and_manage_threads(thread_num, numbers_per_thread);
 
-                print_even_list();
-                print_odd_list();
-                
                 // Imprimir las listas ordenadas
                 print_sorted_lists();
 

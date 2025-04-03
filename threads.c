@@ -43,8 +43,6 @@ void *thread_worker(void *arg) {
     int thread_id = data->thread_id;
     int numbers_to_process = data->numbers_to_process;
 
-    printf("Hilo %d ejecutándose...\n", thread_id);
-
     // Simulación de procesamiento de números
     for (int i = 0; i < numbers_to_process; i++) {
         NumberEntry entry;
@@ -87,11 +85,7 @@ int create_and_manage_threads(int thread_num, int numbers_per_thread) {
     int threads_created = 0;
     int success = 1;
 
-    printf("Creando %d hilos...\n", thread_num);
-
     for (int i = 0; i < thread_num; i++) {
-        printf("  Creando hilo %d\n", i);
-        
         // Preparar datos para el hilo
         thread_data_t *data = malloc(sizeof(thread_data_t));
         if (data == NULL) {
@@ -113,7 +107,6 @@ int create_and_manage_threads(int thread_num, int numbers_per_thread) {
 
     // Si hubo un error, esperar a que terminen los hilos ya creados
     if (!success) {
-        printf("Error en la creación de hilos. Esperando a que terminen los hilos creados...\n");
         for (int i = 0; i < threads_created; i++) {
             if (pthread_join(threads[i], NULL) != 0) {
                 perror("Error al esperar al hilo");
@@ -122,15 +115,12 @@ int create_and_manage_threads(int thread_num, int numbers_per_thread) {
         return 0;
     }
 
-    printf("Esperando a que los hilos terminen...\n");
     for (int i = 0; i < thread_num; i++) {
         if (pthread_join(threads[i], NULL) != 0) {
             perror("Error al esperar al hilo");
             success = 0;
         }
-        printf("  Hilo %d terminado.\n", i);
     }
 
-    printf("Todos los hilos han terminado.\n");
     return success;
 }
