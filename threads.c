@@ -84,6 +84,8 @@ void *thread_worker(void *arg) {
 // Función para crear y gestionar los hilos
 int create_and_manage_threads(int thread_num, int numbers_per_thread) {
     pthread_t threads[thread_num];
+    int threads_created = 0;
+    int success = 1;
 
     printf("Creando %d hilos...\n", thread_num);
 
@@ -92,37 +94,43 @@ int create_and_manage_threads(int thread_num, int numbers_per_thread) {
         
         // Preparar datos para el hilo
         thread_data_t *data = malloc(sizeof(thread_data_t));
+        if (data == NULL) {
+            fprintf(stderr, "Error: No se pudo asignar memoria para los datos del hilo\n");
+            success = 0;
+            break;
+        }
         data->thread_id = i;
         data->numbers_to_process = numbers_per_thread;
 
         if (pthread_create(&threads[i], NULL, thread_worker, (void *)data) != 0) {
             perror("Error al crear el hilo");
-            return 0; // Indicar fallo
+            free(data);
+            success = 0;
+            break;
         }
+        threads_created++;
+    }
+
+    // Si hubo un error, esperar a que terminen los hilos ya creados
+    if (!success) {
+        printf("Error en la creación de hilos. Esperando a que terminen los hilos creados...\n");
+        for (int i = 0; i < threads_created; i++) {
+            if (pthread_join(threads[i], NULL) != 0) {
+                perror("Error al esperar al hilo");
+            }
+        }
+        return 0;
     }
 
     printf("Esperando a que los hilos terminen...\n");
     for (int i = 0; i < thread_num; i++) {
         if (pthread_join(threads[i], NULL) != 0) {
             perror("Error al esperar al hilo");
+            success = 0;
         }
         printf("  Hilo %d terminado.\n", i);
     }
 
     printf("Todos los hilos han terminado.\n");
-    return 1; // Indicar éxito
+    return success;
 }
-
-// --- Consideraciones adicionales ---
-// 1. Mutex: Necesitarás inicializar un mutex (pthread_mutex_t) globalmente o en main,
-//    y pasarlo o hacerlo accesible a las funciones add_to_even_list/add_to_odd_list,
-//    o usarlo directamente en thread_worker antes y después de llamar a dichas funciones.
-// 2. Distribución del trabajo: Decide cómo se distribuirán los números entre los hilos.
-//    ¿Cada hilo procesa 'numbers_per_thread' números? ¿Cómo sabe cada hilo *cuáles* números procesar?
-//    La estructura thread_data_t puede ser útil para esto.
-// 3. Gestión de errores: Añadir una gestión de errores más robusta.
-// 4. Inclusión en main: Necesitarás declarar `create_and_manage_threads` en `main.h` (o directamente en `main.c` si prefieres no crear `threads.h`)
-//    e incluir `<pthread.h>`. Luego, llama a `create_and_manage_threads` desde `main` en lugar del bucle de ejemplo.
-// 5. Compilación: Recuerda enlazar con la librería pthread al compilar (usando `-pthread`). Ejemplo: gcc main.c list_management.c threads.c read_file.c arg_check.c -o nemer -pthread
-
-
