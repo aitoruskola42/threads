@@ -16,12 +16,12 @@ typedef struct {
 #define FILE_EMPTY_MESSAGE "El fichero está vacío."
 #define FILE_ERROR "Error al introducir el fichero"
 
-// Declaraciones de funciones
+
 void handle_arguments(int argc, char *argv[], char **filename);
 char* read_file(const char *filename);
 int validate_key_value_format(const char *content, int *numbers_per_thread, int *thread_num);
 
-// Funciones para manejar las listas
+
 int initialize_lists(int size);
 void add_to_even_list(NumberEntry entry);
 void add_to_odd_list(NumberEntry entry);
@@ -29,7 +29,6 @@ void print_even_list();
 void print_odd_list();
 void free_lists();
 
-// Funciones de ordenamiento
 void sort_even_list();
 void sort_odd_list();
 void print_sorted_lists();
@@ -37,12 +36,12 @@ void print_sorted_lists();
 void *thread_worker(void *arg);
 int create_and_manage_threads(int thread_num, int numbers_per_thread);
 
-extern NumberEntry *even_list; // Declaración externa
-extern NumberEntry *odd_list;  // Declaración externa
-extern int even_count;          // Declaración externa
-extern int odd_count;           // Declaración externa
+extern NumberEntry *even_list; 
+extern NumberEntry *odd_list;  
+extern int even_count;         
+extern int odd_count;          
 
-// Mutex para proteger las listas
+
 extern pthread_mutex_t even_mutex;
 extern pthread_mutex_t odd_mutex;
 

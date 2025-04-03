@@ -6,20 +6,20 @@
 #include <sys/time.h>
 #include "main.h"
 
-// Estructura para pasar datos a cada hilo
+
 typedef struct {
     int thread_id;
     int numbers_to_process;
 } thread_data_t;
 
-// Función para verificar si un número ya existe en la lista correspondiente
+
 int number_exists_in_list(int thread_id, int number, int is_even) {
     int exists = 0;
     if (is_even) {
         pthread_mutex_lock(&even_mutex);
         for (int i = 0; i < even_count; i++) {
             if (even_list[i].thread == thread_id && even_list[i].value == number) {
-                exists = 1; // El número ya existe en la lista de pares para este hilo
+                exists = 1; 
                 break;
             }
         }
@@ -28,38 +28,37 @@ int number_exists_in_list(int thread_id, int number, int is_even) {
         pthread_mutex_lock(&odd_mutex);
         for (int i = 0; i < odd_count; i++) {
             if (odd_list[i].thread == thread_id && odd_list[i].value == number) {
-                exists = 1; // El número ya existe en la lista de impares para este hilo
+                exists = 1; 
                 break;
             }
         }
         pthread_mutex_unlock(&odd_mutex);
     }
-    return exists; // El número no existe
+    return exists; 
 }
 
-// Función que ejecutará cada hilo
+
 void *thread_worker(void *arg) {
-    thread_data_t *data = (thread_data_t *)arg; // Convertir el argumento a la estructura
+    thread_data_t *data = (thread_data_t *)arg; 
     int thread_id = data->thread_id;
     int numbers_to_process = data->numbers_to_process;
 
-    // Simulación de procesamiento de números
+
     for (int i = 0; i < numbers_to_process; i++) {
         NumberEntry entry;
         entry.thread = thread_id;
 
-        // Generar un número aleatorio único
+
         int random_number;
         int is_even;
         do {
-            random_number = rand() % 100000 + 1; // Generar un número aleatorio entre 1 y 100000
-            is_even = (random_number % 2 == 0); // Determinar si es par
-        } while (number_exists_in_list(thread_id, random_number, is_even)); // Verificar si el número ya existe
+            random_number = rand() % 100000 + 1; 
+            is_even = (random_number % 2 == 0); 
+        } while (number_exists_in_list(thread_id, random_number, is_even)); 
 
-        entry.value = random_number; // Asignar el número aleatorio
-        entry.index = i; // Asignar el índice de iteración
+        entry.value = random_number; 
+        entry.index = i; 
 
-        // Obtener la fecha y hora actuales con microsegundos
         struct timeval tv;
         gettimeofday(&tv, NULL);
         struct tm *t = localtime(&tv.tv_sec);
@@ -67,7 +66,6 @@ void *thread_worker(void *arg) {
                  t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, 
                  t->tm_hour, t->tm_min, t->tm_sec, tv.tv_usec);
 
-        // Añadir a la lista correspondiente
         if (is_even) {
             add_to_even_list(entry);
         } else {
@@ -75,18 +73,16 @@ void *thread_worker(void *arg) {
         }
     }
 
-    free(data); // Liberar la memoria de los datos del hilo
-    pthread_exit(NULL); // Terminar el hilo
+    free(data); 
+    pthread_exit(NULL); 
 }
 
-// Función para crear y gestionar los hilos
 int create_and_manage_threads(int thread_num, int numbers_per_thread) {
     pthread_t threads[thread_num];
     int threads_created = 0;
     int success = 1;
 
     for (int i = 0; i < thread_num; i++) {
-        // Preparar datos para el hilo
         thread_data_t *data = malloc(sizeof(thread_data_t));
         if (data == NULL) {
             fprintf(stderr, "Error: No se pudo asignar memoria para los datos del hilo\n");
@@ -105,7 +101,7 @@ int create_and_manage_threads(int thread_num, int numbers_per_thread) {
         threads_created++;
     }
 
-    // Si hubo un error, esperar a que terminen los hilos ya creados
+
     if (!success) {
         for (int i = 0; i < threads_created; i++) {
             if (pthread_join(threads[i], NULL) != 0) {
