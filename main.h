@@ -9,4 +9,10 @@
 #define FILE_EMPTY_MESSAGE "El fichero está vacío."
 #define FILE_ERROR "Error al introducir el fichero"
 
+// Declaraciones de funciones
+void handle_arguments(int argc, char *argv[], char **filename);
+char* read_file(const char *filename);
+int validate_key_value_format(const char *content, int *numbers_per_thread, int *thread_num);
+void print_content(const char *content, int numbers_per_thread, int thread_num);
+
 #endif
