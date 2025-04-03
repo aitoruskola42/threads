@@ -7,5 +7,6 @@
 
 #define HELP_MESSAGE "Uso: ./a.exe -f <nombre_fichero> o --file <nombre_fichero>"
 
+#define EXT_ERROR "Se requiere que el fichero tenga la extensión .txt"
 
 #endif

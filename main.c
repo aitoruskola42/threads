@@ -20,7 +20,32 @@ int main(int argc, char *argv[]) {
     }
     if (argc == 3) {
         if (strcmp(argv[1], "-f") == 0 || strcmp(argv[1], "--file") == 0) {
-            printf("Nombre del fichero: %s\n", argv[2]);
+            const char *ext = strrchr(argv[2], '.');
+            if (!ext || strcmp(ext, ".txt") != 0 || strlen(ext) != 4 || ext == argv[2]) {
+                fprintf(stderr, "%s\n", EXT_ERROR);
+                return 1;
+            }
+            FILE *file = fopen(argv[2], "r");
+            if (!file) {
+                fprintf(stderr, "El fichero no existe o no se puede abrir\n");
+                return 1;
+            }
+
+            fseek(file, 0, SEEK_END);
+            long file_size = ftell(file);
+            rewind(file);
+
+            if (file_size > 0) {
+                char *content = (char *)malloc(file_size + 1);
+                fread(content, 1, file_size, file);
+                content[file_size] = '\0';
+                printf("Contenido del fichero:\n%s\n", content);
+                free(content);
+            } else {
+                printf("El fichero está vacío.\n");
+            }
+
+            fclose(file);
         } else {
             fprintf(stderr, "%s\n", ARG_ERROR);
             return 1;
